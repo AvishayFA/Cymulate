@@ -1,0 +1,6 @@
+@Cymulate1_HostAddress = http://localhost:5157
+
+GET {{Cymulate1_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
