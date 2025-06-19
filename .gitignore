@@ -1,0 +1,12 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/Cymulate1
+/Cymulate1/obj
+/Cymulate2/obj
+/Infrastructure/obj/Debug/net8.0
+/Infrastructure/obj
+/Cymulate1/bin/Debug/net8.0
+/Cymulate2/bin/Debug/net8.0
+/Infrastructure/bin/Debug/net8.0
