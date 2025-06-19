@@ -1,19 +1,23 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Cymulate1.Models.DB;
 using Cymulate1.Models.Entities;
 using Cymulate1.Models.Interfaces;
+using Infrastructure.DB.Entities;
 using Microsoft.Extensions.Options;
 
 namespace Cymulate1.Models.Services;
 
 public class EmailService : IEmailService
 {
-    private EmailSettings _emailSettings { get; }
     private ILogger<EmailService> _logger { get; }
+    private EmailTrackingContext _context { get; }
+    private EmailSettings _emailSettings { get; }
 
-    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger, EmailTrackingContext context)
     {
         _emailSettings = emailSettings.Value;
+        _context = context;
         _logger = logger;
     }
 
@@ -48,11 +52,23 @@ public class EmailService : IEmailService
 
                 mailMessage.To.Add(recipient.Email);
                 await client.SendMailAsync(mailMessage);
+                _context.SentEmails.Add(new SentEmails
+                {
+                    ToEmailAddress = recipient.Email,
+                    Timestamp = DateTime.UtcNow,
+                    IsSuccess = true
+                });
             }
             catch (Exception emailEx)
             {
                 response.FailedEmails.Add(recipient.Email);
                 _logger.LogError(emailEx, $"Failed to send email to {recipient.Email}");
+                _context.SentEmails.Add(new SentEmails
+                {
+                    ToEmailAddress = recipient.Email,
+                    Timestamp = DateTime.UtcNow,
+                    IsSuccess = false
+                });
             }
         }
 

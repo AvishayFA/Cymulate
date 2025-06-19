@@ -1,7 +1,10 @@
 ﻿using System.Net;
 using System.Net.Mail;
+using Cymulate2.Models.DB;
 using Cymulate2.Models.Entities;
 using Cymulate2.Models.Interfaces;
+using Infrastructure.DB.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Cymulate2.Models.Services;
 
@@ -10,12 +13,14 @@ public class PhishingService : IPhishingService
     private readonly ILogger<PhishingService> _logger;
     private readonly IWebHostEnvironment _webHostEnvironment;
     private readonly IConfiguration _configuration;
+    private readonly UsersDbContext _usersDbContext;
 
-    public PhishingService(ILogger<PhishingService> logger, IWebHostEnvironment webHostEnvironment, IConfiguration configuration)
+    public PhishingService(ILogger<PhishingService> logger, IWebHostEnvironment webHostEnvironment, IConfiguration configuration, UsersDbContext dbContext)
     {
         _logger = logger;
         _webHostEnvironment = webHostEnvironment;
         _configuration = configuration;
+        _usersDbContext = dbContext;
     }
 
     public async Task<bool> SendPhishingEmailsAsync(PhishingRequest request)
@@ -89,5 +94,18 @@ public class PhishingService : IPhishingService
         }
 
         return result;
+    }
+
+    public async Task<List<SentEmails>> GetLastEmails(DateTime fromDate, DateTime toDate)
+    {
+        return await _usersDbContext.SentEmails
+            .Where(e => e.Timestamp >= fromDate && e.Timestamp <= toDate)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetEmailCount()
+    {
+        return await _usersDbContext.SentEmails
+            .CountAsync();
     }
 }

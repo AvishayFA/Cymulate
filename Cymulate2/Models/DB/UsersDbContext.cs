@@ -1,5 +1,6 @@
 ﻿using Cymulate2.Models.Entities;
 using Infrastructrure.Models.DB.Entities;
+using Infrastructure.DB.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ public class UsersDbContext : IdentityDbContext<ApplicationUser>
     }
 
     public DbSet<LinkClick> LinkClicks { get; set; }
+    public DbSet<SentEmails> SentEmails { get; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -29,6 +31,11 @@ public class UsersDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Email).HasMaxLength(255);
             entity.HasIndex(e => e.Email);
             entity.HasIndex(e => e.Timestamp);
+        });
+
+        builder.Entity<SentEmails>(entity =>
+        {
+            entity.ToTable("sent_emails");
         });
     }
 }
